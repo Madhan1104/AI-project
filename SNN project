@@ -1,0 +1,34 @@
+from brian2 import *
+
+eqs = '''
+dv/dt = (I-v) / tau : 1 (unless refractory)
+I : 1
+'''
+tau = 10*ms
+
+G = NeuronGroup(10, eqs, threshold='v>1', reset='v=0', refractory=5*ms, method='exact')
+G.I = '0.5 + 0.5*rand()'
+
+spike_mon = SpikeMonitor(G)
+state_mon = StateMonitor(G, 'v', record=True)
+
+# Run time
+run(100*ms)
+
+# Plot the spikes
+figure()
+plot(spike_mon.t/ms, spike_mon.i, '.k')
+xlabel('Time (ms)')
+ylabel('Neuron index')
+title('Spike Raster Plot')
+
+# Plot the membrane potentials
+figure()
+plot(state_mon.t/ms, state_mon.v[0], label='Neuron 0')
+plot(state_mon.t/ms, state_mon.v[1], label='Neuron 1')
+xlabel('Time (ms)')
+ylabel('v')
+title('Membrane Potentials')
+legend()
+
+show()
